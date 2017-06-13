@@ -4,7 +4,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 
 
-def accessSheet(sheet, data_type= None):
+def getDataSheet(sheet, data_type= None):
 	'''
 	function to access all the data from a speadsheet, output = json file
 	test = ok
@@ -15,19 +15,43 @@ def accessSheet(sheet, data_type= None):
 	else:
 		return
 
-def accessRow(sheet, num_row):
+def getLastRow(sheet):
 	'''
-	function to access a specific row 
+	function to get the last empty row (verification on the first column)
 	'''
 
-def getLastRow(sheet):
 	#get all the values in a list of an x col
 	col_values = sheet.col_values(1)
 	ct = 0
-
+	#loop until find an empty cell 
 	while col_values[ct] != "":
 		ct += 1
 	return ct+1
+
+def getUserData(sheet):
+	'''
+	function to get all the new user from the spreadsheet
+	'''
+	# creation of the list whch contains all the data
+	user_data = []
+	# compteur to get the new data without taking the label
+	ct = 2
+
+	#loop to put all the values of the row in a list
+	while getLastRow(sheet) != ct:
+		user_data.append(sheet.row_values(ct))
+		ct+=1
+	return user_data
+
+
+
+def setUserDataIntoOutput(sheet, user_data):
+	'''
+	function to set all the user data into the spreadsheet 
+	'''
+
+	
+
 
 
 def main():
@@ -45,7 +69,10 @@ def main():
 	spreadsheet = client.open(model_speadsheet)
 	#set the output sheet of the spreadsheet
 	output_worksheet = spreadsheet.worksheet("EINGABE")
-	print(getLastRow(output_worksheet))
+	getUserData(output_worksheet)
+
+	
+
 	
 	
 if __name__ == '__main__':
