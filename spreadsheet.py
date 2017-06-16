@@ -28,34 +28,36 @@ def getLastRow(sheet):
 		ct += 1
 	return ct+1
 
-def getUserData(sheet):
+def getUsersData(sheet, last_empty_row):
 	'''
 	function to get all the new user from the spreadsheet
 	'''
 	# creation of the list whch contains all the data
-	user_data = []
-	# compteur to get the new data without taking the label
+	users_data = []
+	# counter to get the new data without taking the label
 	ct = 2
 
 	#loop to put all the values of the row in a list
-	while getLastRow(sheet) != ct:
-		user_data.append(sheet.row_values(ct))
+	while last_empty_row != ct:
+		users_data.append(sheet.row_values(ct))
 		ct+=1
-	return user_data
+	return users_data
 
 
 
-def setUserDataIntoOutput(sheet, user_data):
+def setUserDataIntoOutput(sheet, users_data, row):
 	'''
 	function to set all the user data into the spreadsheet 
 	'''
 
-	
+	sheet.insert_row(users_data[0], 11)
+	return
+
 
 
 
 def main():
-	'''VARIABLES'''
+	'''VARIABLES FILES GOOGLE DRIVE'''
 	user_info_speadsheet = "medirechner_WS17_18_v02 (Haslreiter).xlsx"
 	model_speadsheet = "Wintersemester 2017-18 v27.xlsx"
 
@@ -65,13 +67,21 @@ def main():
 	creds = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)
 	client = gspread.authorize(creds)
 
-	#open the speadsheet
-	spreadsheet = client.open(model_speadsheet)
-	#set the output sheet of the spreadsheet
-	output_worksheet = spreadsheet.worksheet("EINGABE")
-	getUserData(output_worksheet)
 
-	
+	#set the sheet with the raw data of the users and set the last empty row in it
+	spreadsheet = client.open(model_speadsheet)
+	raw_data_worksheet = spreadsheet.worksheet("EINGABE")
+	last_empty_row = getLastRow(raw_data_worksheet)
+
+	#get users data 
+	users_data = getUsersData(raw_data_worksheet, last_empty_row)
+
+	#set the output sheet of the spreadsheet and the last empty row in it
+	output_worksheet = client.open(user_info_speadsheet)
+	user_data_worksheet = output_worksheet.worksheet("Form Responses 1")
+	last_empty_row = getLastRow(user_data_worksheet)
+
+	setUserDataIntoOutput(user_data_worksheet, users_data, last_empty_row)
 
 	
 	
